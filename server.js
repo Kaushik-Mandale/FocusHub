@@ -8,7 +8,6 @@ const io = socketIO(server);
 
 let sessions = {};  // To store sessions and their passwords
 
-// Serve static files from the root directory
 app.use(express.static(path.join(__dirname)));
 
 io.on('connection', (socket) => {
@@ -49,7 +48,6 @@ io.on('connection', (socket) => {
     });
 });
 
-// Use Vercel's assigned port, or default to 3000 for local development
 const port = process.env.PORT || 3000;
 server.listen(port, () => {
     console.log(`Server is running on port ${port}`);
