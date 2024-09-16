@@ -1,56 +1,40 @@
-const express = require('express');
-const http = require('http');
-const socketIO = require('socket.io');
-const path = require('path');
-const app = express();
-const server = http.createServer(app);
-const io = socketIO(server);
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #f0f0f0;
+}
 
-let sessions = {};  // To store sessions and their passwords
+.container {
+    text-align: center;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
 
-// Serve static files from the root directory
-app.use(express.static(path.join(__dirname)));
+input {
+    margin: 10px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: calc(100% - 22px);
+}
 
-io.on('connection', (socket) => {
-    console.log('New user connected');
+button {
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    width: 100%;
+    font-size: 16px;
+}
 
-    // Create session with password
-    socket.on('createSession', (sessionName, password) => {
-        console.log('Received createSession request:', { sessionName, password });
-        if (!sessions[sessionName]) {
-            sessions[sessionName] = password;
-            socket.join(sessionName);
-            socket.emit('sessionCreated', { success: true });
-        } else {
-            socket.emit('sessionCreated', { success: false, message: 'Session name already taken' });
-        }
-    });
-
-    // Join session
-    socket.on('joinSession', (sessionName, password) => {
-        console.log('Received joinSession request:', { sessionName, password });
-        if (sessions[sessionName] && sessions[sessionName] === password) {
-            socket.join(sessionName);
-            socket.emit('joinedSession', { success: true });
-        } else {
-            socket.emit('joinedSession', { success: false, message: 'Invalid session name or password' });
-        }
-    });
-
-    // Handle chat messages
-    socket.on('message', (data) => {
-        console.log('Received message:', data);
-        io.to(data.sessionName).emit('newMessage', data.message);
-    });
-
-    // Handle disconnect
-    socket.on('disconnect', () => {
-        console.log('User disconnected');
-    });
-});
-
-// Use Vercel's assigned port, or default to 3000 for local development
-const port = process.env.PORT || 3000;
-server.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-});
+button:hover {
+    background-color: #0056b3;
+}
