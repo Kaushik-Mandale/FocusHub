@@ -1,64 +1,49 @@
+// Initialize the socket connection to the server
 const socket = io();
 
-// Elements
-const sessionContainer = document.getElementById('session-container');
-const sessionContent = document.getElementById('session-content');
-const localVideo = document.getElementById('localVideo');
-const remoteVideo = document.getElementById('remoteVideo');
+// Handling session creation
+document.getElementById('createSessionButton').addEventListener('click', () => {
+    const sessionName = document.getElementById('sessionNameInput').value;
+    const password = document.getElementById('sessionPasswordInput').value;
 
-// Session creation
-document.getElementById('createSessionBtn').addEventListener('click', () => {
-    const sessionName = document.getElementById('sessionName').value;
-    const password = document.getElementById('sessionPassword').value;
-
-    socket.emit('createSession', sessionName, password);
-});
-
-socket.on('sessionCreated', (data) => {
-    if (data.success) {
-        sessionContainer.style.display = 'none';
-        sessionContent.style.display = 'block';
+    if (sessionName && password) {
+        socket.emit('createSession', sessionName, password);
     } else {
-        alert(data.message);
+        alert('Please enter both session name and password');
     }
 });
 
-// Join session
-document.getElementById('joinSessionBtn').addEventListener('click', () => {
-    const sessionName = document.getElementById('joinSessionName').value;
-    const password = document.getElementById('joinSessionPassword').value;
+// Handling session joining
+document.getElementById('joinSessionButton').addEventListener('click', () => {
+    const sessionName = document.getElementById('joinSessionNameInput').value;
+    const password = document.getElementById('joinSessionPasswordInput').value;
 
-    socket.emit('joinSession', sessionName, password);
-});
-
-socket.on('joinedSession', (data) => {
-    if (data.success) {
-        sessionContainer.style.display = 'none';
-        sessionContent.style.display = 'block';
+    if (sessionName && password) {
+        socket.emit('joinSession', sessionName, password);
     } else {
-        alert(data.message);
+        alert('Please enter both session name and password');
     }
 });
 
-// Chat functionality
-document.getElementById('sendChat').addEventListener('click', () => {
-    const message = document.getElementById('chatInput').value;
-    const sessionName = document.getElementById('joinSessionName').value || document.getElementById('sessionName').value;
-    socket.emit('message', { sessionName, message });
+// Listening for the session creation response
+socket.on('sessionCreated', (response) => {
+    if (response.success) {
+        alert('Session created successfully!');
+    } else {
+        alert('Failed to create session: ' + response.message);
+    }
 });
 
+// Listening for the session joining response
+socket.on('joinedSession', (response) => {
+    if (response.success) {
+        alert('Joined session successfully!');
+    } else {
+        alert('Failed to join session: ' + response.message);
+    }
+});
+
+// Listening for new chat messages (if chat feature is enabled)
 socket.on('newMessage', (message) => {
-    alert('New message: ' + message);
+    console.log('New message received: ' + message);
 });
-
-// Video and Audio handling (You can add WebRTC here later)
-async function startCamera() {
-    try {
-        const localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-        localVideo.srcObject = localStream;
-    } catch (error) {
-        console.error('Error accessing camera:', error);
-    }
-}
-
-document.getElementById('toggleCamera').addEventListener('click', startCamera);
